@@ -6,428 +6,80 @@
     <title>🌊 BreathFlow | Дыхательная реабилитация</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            min-height: 100vh;
-            background: linear-gradient(135deg, #d4eaf7 0%, #b6d5e8 50%, #e1f0fa 100%);
-            font-family: -apple-system, 'Segoe UI', system-ui, sans-serif;
-            padding: 16px;
-            position: relative;
-        }
-
-        /* Пузырьки */
-        .bubbles {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 0;
-            overflow: hidden;
-        }
-        .bubble {
-            position: absolute;
-            bottom: -80px;
-            background: rgba(255,255,255,0.4);
-            border-radius: 50%;
-            animation: rise 14s infinite ease-in;
-        }
-        @keyframes rise {
-            0% { bottom: -80px; opacity: 0; transform: translateX(0); }
-            30% { opacity: 0.5; }
-            100% { bottom: 100%; opacity: 0; transform: translateX(60px); }
-        }
-
-        .glass-card {
-            position: relative;
-            z-index: 2;
-            max-width: 700px;
-            width: 100%;
-            margin: 0 auto;
-            background: rgba(255,255,255,0.4);
-            backdrop-filter: blur(18px);
-            border-radius: 48px;
-            padding: 20px;
-            box-shadow: 0 20px 40px rgba(100,150,200,0.2);
-            border: 1px solid rgba(255,255,255,0.6);
-        }
-
-        h1 {
-            text-align: center;
-            color: #2c5a7a;
-            font-size: 1.8rem;
-            margin-bottom: 15px;
-        }
-
-        /* Вкладки */
-        .tabs {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 20px;
-            background: rgba(255,255,255,0.4);
-            border-radius: 60px;
-            padding: 5px;
-        }
-        .tab {
-            flex: 1;
-            text-align: center;
-            padding: 10px;
-            border-radius: 50px;
-            cursor: pointer;
-            color: #2c5a7a;
-            font-weight: 600;
-            font-size: 0.85rem;
-        }
-        .tab.active {
-            background: rgba(255,255,255,0.7);
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { min-height: 100vh; background: linear-gradient(135deg, #d4eaf7 0%, #b6d5e8 50%, #e1f0fa 100%); font-family: -apple-system, 'Segoe UI', system-ui, sans-serif; padding: 16px; position: relative; }
+        .bubbles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden; }
+        .bubble { position: absolute; bottom: -80px; background: rgba(255,255,255,0.4); border-radius: 50%; animation: rise 14s infinite ease-in; }
+        @keyframes rise { 0% { bottom: -80px; opacity: 0; transform: translateX(0); } 30% { opacity: 0.5; } 100% { bottom: 100%; opacity: 0; transform: translateX(60px); } }
+        .glass-card { position: relative; z-index: 2; max-width: 700px; width: 100%; margin: 0 auto; background: rgba(255,255,255,0.4); backdrop-filter: blur(18px); border-radius: 48px; padding: 20px; box-shadow: 0 20px 40px rgba(100,150,200,0.2); border: 1px solid rgba(255,255,255,0.6); }
+        h1 { text-align: center; color: #2c5a7a; font-size: 1.8rem; margin-bottom: 15px; }
+        .tabs { display: flex; gap: 8px; margin-bottom: 20px; background: rgba(255,255,255,0.4); border-radius: 60px; padding: 5px; }
+        .tab { flex: 1; text-align: center; padding: 10px; border-radius: 50px; cursor: pointer; color: #2c5a7a; font-weight: 600; font-size: 0.85rem; }
+        .tab.active { background: rgba(255,255,255,0.7); }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-
-        /* Упражнения */
-        .ex-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        .ex-card {
-            background: rgba(255,255,255,0.5);
-            border: 1px solid rgba(255,255,255,0.6);
-            border-radius: 28px;
-            padding: 12px;
-            text-align: center;
-            cursor: pointer;
-            color: #2c5a7a;
-        }
-        .ex-card.active {
-            background: rgba(255,255,255,0.8);
-            transform: scale(1.02);
-        }
+        .ex-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
+        .ex-card { background: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.6); border-radius: 28px; padding: 12px; text-align: center; cursor: pointer; color: #2c5a7a; }
+        .ex-card.active { background: rgba(255,255,255,0.8); transform: scale(1.02); }
         .ex-icon { font-size: 1.8rem; }
         .ex-name { font-weight: 600; font-size: 0.85rem; }
-
-        /* Цель */
-        .target-panel {
-            background: rgba(255,255,255,0.5);
-            border-radius: 40px;
-            padding: 12px 16px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .target-control {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            background: rgba(255,255,255,0.6);
-            padding: 5px 15px;
-            border-radius: 40px;
-        }
-        .target-btn {
-            background: white;
-            border: none;
-            width: 36px;
-            height: 36px;
-            border-radius: 30px;
-            font-size: 1.3rem;
-            font-weight: bold;
-            cursor: pointer;
-            color: #2c5a7a;
-        }
-        .target-value {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: #2c5a7a;
-            min-width: 50px;
-            text-align: center;
-        }
-
-        /* Круг */
-        .canvas-wrapper {
-            width: 220px;
-            height: 220px;
-            margin: 0 auto;
-            position: relative;
-        }
-        canvas {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            box-shadow: 0 10px 30px rgba(70,130,180,0.25);
-        }
-        .phase-badge {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(255,255,255,0.9);
-            backdrop-filter: blur(8px);
-            padding: 6px 16px;
-            border-radius: 40px;
-            color: #1e4a6e;
-            font-weight: 700;
-            font-size: 0.9rem;
-            white-space: nowrap;
-        }
-        .timer {
-            text-align: center;
-            font-size: 2.5rem;
-            font-weight: 700;
-            font-family: monospace;
-            color: #1f6392;
-            margin: 10px 0;
-        }
-        .progress-bar {
-            background: rgba(255,255,255,0.5);
-            border-radius: 20px;
-            height: 6px;
-            margin: 10px 0;
-            overflow: hidden;
-        }
-        .progress-fill {
-            background: #5ba3c9;
-            height: 100%;
-            width: 0%;
-            transition: width 0.3s;
-        }
-
-        /* Статистика на главной */
-        .stats-row {
-            display: flex;
-            justify-content: space-between;
-            background: rgba(255,255,255,0.5);
-            border-radius: 40px;
-            padding: 12px;
-            margin: 15px 0;
-            text-align: center;
-        }
+        .target-panel { background: rgba(255,255,255,0.5); border-radius: 40px; padding: 12px 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .target-control { display: flex; gap: 12px; align-items: center; background: rgba(255,255,255,0.6); padding: 5px 15px; border-radius: 40px; }
+        .target-btn { background: white; border: none; width: 36px; height: 36px; border-radius: 30px; font-size: 1.3rem; font-weight: bold; cursor: pointer; color: #2c5a7a; }
+        .target-value { font-size: 1.4rem; font-weight: 700; color: #2c5a7a; min-width: 50px; text-align: center; }
+        .canvas-wrapper { width: 220px; height: 220px; margin: 0 auto; position: relative; }
+        canvas { width: 100%; height: 100%; border-radius: 50%; box-shadow: 0 10px 30px rgba(70,130,180,0.25); }
+        .phase-badge { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(255,255,255,0.9); backdrop-filter: blur(8px); padding: 6px 16px; border-radius: 40px; color: #1e4a6e; font-weight: 700; font-size: 0.9rem; white-space: nowrap; }
+        .timer { text-align: center; font-size: 2.5rem; font-weight: 700; font-family: monospace; color: #1f6392; margin: 10px 0; }
+        .progress-bar { background: rgba(255,255,255,0.5); border-radius: 20px; height: 6px; margin: 10px 0; overflow: hidden; }
+        .progress-fill { background: #5ba3c9; height: 100%; width: 0%; transition: width 0.3s; }
+        .stats-row { display: flex; justify-content: space-between; background: rgba(255,255,255,0.5); border-radius: 40px; padding: 12px; margin: 15px 0; text-align: center; }
         .stat-item { flex: 1; }
         .stat-number { font-size: 1.5rem; font-weight: 700; color: #2c5a7a; }
         .stat-label { font-size: 0.65rem; color: #2c5a7a; }
-
-        /* Кнопки */
-        .btn-group {
-            display: flex;
-            gap: 10px;
-            margin: 15px 0;
-        }
-        button {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 40px;
-            font-weight: 600;
-            font-size: 0.9rem;
-            cursor: pointer;
-        }
+        .btn-group { display: flex; gap: 10px; margin: 15px 0; }
+        button { flex: 1; padding: 12px; border: none; border-radius: 40px; font-weight: 600; font-size: 0.9rem; cursor: pointer; }
         .btn-start { background: #c9e9ff; color: #1f6e9e; }
         .btn-pause { background: #ffe8c7; color: #b8772e; }
         .btn-stop { background: #ffe0db; color: #bc6f5c; }
         .btn-pdf { background: #9ac2db; color: white; width: 100%; margin-top: 8px; }
-
-        /* Календарь */
-        .calendar {
-            background: rgba(255,255,255,0.5);
-            border-radius: 32px;
-            padding: 15px;
-            margin: 15px 0;
-        }
-        .calendar-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            color: #2c5a7a;
-        }
-        .calendar-nav {
-            background: rgba(255,255,255,0.6);
-            border: none;
-            padding: 8px 16px;
-            border-radius: 30px;
-            cursor: pointer;
-            color: #2c5a7a;
-        }
-        .calendar-weekdays {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            text-align: center;
-            font-size: 0.7rem;
-            font-weight: 600;
-            color: #2c5a7a;
-            margin-bottom: 10px;
-        }
-        .calendar-days {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 5px;
-        }
-        .calendar-day {
-            aspect-ratio: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 30px;
-            font-size: 0.8rem;
-            background: rgba(255,255,255,0.4);
-            cursor: pointer;
-            color: #2c5a7a;
-        }
-        .calendar-day.has-session {
-            background: rgba(100,180,140,0.7);
-            color: white;
-            font-weight: bold;
-        }
-        .calendar-day.selected {
-            background: rgba(255,255,255,0.8);
-            border: 2px solid #8fc5e8;
-        }
+        .calendar { background: rgba(255,255,255,0.5); border-radius: 32px; padding: 15px; margin: 15px 0; }
+        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; color: #2c5a7a; }
+        .calendar-nav { background: rgba(255,255,255,0.6); border: none; padding: 8px 16px; border-radius: 30px; cursor: pointer; color: #2c5a7a; }
+        .calendar-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 0.7rem; font-weight: 600; color: #2c5a7a; margin-bottom: 10px; }
+        .calendar-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+        .calendar-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 30px; font-size: 0.8rem; background: rgba(255,255,255,0.4); cursor: pointer; color: #2c5a7a; }
+        .calendar-day.has-session { background: rgba(100,180,140,0.7); color: white; font-weight: bold; }
+        .calendar-day.selected { background: rgba(255,255,255,0.8); border: 2px solid #8fc5e8; }
         .calendar-day.empty { background: transparent; cursor: default; opacity: 0.3; }
-
-        /* Периоды */
-        .period-buttons {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin: 15px 0;
-        }
-        .period-btn {
-            background: rgba(255,255,255,0.5);
-            padding: 8px 12px;
-            border-radius: 30px;
-            font-size: 0.7rem;
-            flex: 1;
-            text-align: center;
-            cursor: pointer;
-            color: #2c5a7a;
-            font-weight: 600;
-        }
-        .period-btn.active {
-            background: rgba(255,255,255,0.8);
-        }
-        .date-range {
-            display: flex;
-            gap: 10px;
-            margin: 15px 0;
-        }
-        .date-range input {
-            flex: 1;
-            background: rgba(255,255,255,0.5);
-            border: 1px solid rgba(255,255,255,0.6);
-            padding: 10px;
-            border-radius: 30px;
-            color: #2c5a7a;
-        }
-        .stats-detail {
-            background: rgba(255,255,255,0.5);
-            border-radius: 32px;
-            padding: 15px;
-            margin: 15px 0;
-            color: #2c5a7a;
-        }
-        .stat-line {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid rgba(0,0,0,0.05);
-        }
-
-        /* Модальное окно */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(10px);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-        .modal-content {
-            background: white;
-            border-radius: 48px;
-            padding: 30px 25px;
-            max-width: 350px;
-            width: 90%;
-            text-align: center;
-        }
-        .mood-grid {
-            display: flex;
-            justify-content: space-around;
-            margin: 20px 0;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        .mood-option {
-            text-align: center;
-            cursor: pointer;
-            padding: 10px;
-            border-radius: 60px;
-            background: #f0f4f8;
-            min-width: 70px;
-        }
+        .period-buttons { display: flex; flex-wrap: wrap; gap: 8px; margin: 15px 0; }
+        .period-btn { background: rgba(255,255,255,0.5); padding: 8px 12px; border-radius: 30px; font-size: 0.7rem; flex: 1; text-align: center; cursor: pointer; color: #2c5a7a; font-weight: 600; }
+        .period-btn.active { background: rgba(255,255,255,0.8); }
+        .date-range { display: flex; gap: 10px; margin: 15px 0; }
+        .date-range input { flex: 1; background: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.6); padding: 10px; border-radius: 30px; color: #2c5a7a; }
+        .stats-detail { background: rgba(255,255,255,0.5); border-radius: 32px; padding: 15px; margin: 15px 0; color: #2c5a7a; }
+        .stat-line { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { background: white; border-radius: 48px; padding: 30px 25px; max-width: 350px; width: 90%; text-align: center; }
+        .mood-grid { display: flex; justify-content: space-around; margin: 20px 0; flex-wrap: wrap; gap: 10px; }
+        .mood-option { text-align: center; cursor: pointer; padding: 10px; border-radius: 60px; background: #f0f4f8; min-width: 70px; }
         .mood-option:hover { background: #e0e7ff; transform: scale(1.05); }
         .mood-emoji { font-size: 2.5rem; }
         .mood-text { font-size: 0.7rem; color: #555; margin-top: 5px; }
-        .support-msg {
-            background: #e8f0fe;
-            border-radius: 20px;
-            padding: 12px;
-            margin: 15px 0;
-            color: #4a6fa5;
-            font-size: 0.85rem;
-        }
-        .modal-btn {
-            background: #b6d5e8;
-            color: #2c5a7a;
-            padding: 12px;
-            border-radius: 40px;
-            width: 100%;
-            border: none;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .toast {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #2ecc71;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 50px;
-            z-index: 1001;
-            display: none;
-            font-size: 0.8rem;
-            white-space: nowrap;
-        }
+        .support-msg { background: #e8f0fe; border-radius: 20px; padding: 12px; margin: 15px 0; color: #4a6fa5; font-size: 0.85rem; }
+        .modal-btn { background: #b6d5e8; color: #2c5a7a; padding: 12px; border-radius: 40px; width: 100%; border: none; font-weight: 600; cursor: pointer; }
+        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #2ecc71; color: white; padding: 10px 20px; border-radius: 50px; z-index: 1001; display: none; font-size: 0.8rem; white-space: nowrap; }
     </style>
 </head>
 <body>
 <div class="bubbles" id="bubbles"></div>
-
 <div class="glass-card">
-    <h1>🌊 BreathFlow Pro</h1>
-
+    <h1>🌊 BreathFlow</h1>
     <div class="tabs">
         <div class="tab active" data-tab="main">🧘 Дыхание</div>
         <div class="tab" data-tab="calendar">📅 Календарь</div>
         <div class="tab" data-tab="stats">📊 Статистика</div>
     </div>
-
-    <!-- Вкладка Дыхание -->
     <div id="tab-main" class="tab-content active">
         <div class="ex-grid">
             <div class="ex-card active" data-ex="box"><div class="ex-icon">🔲</div><div class="ex-name">Квадратное</div></div>
@@ -435,7 +87,6 @@
             <div class="ex-card" data-ex="relax"><div class="ex-icon">🍃</div><div class="ex-name">4-7-8</div></div>
             <div class="ex-card" data-ex="energize"><div class="ex-icon">⚡</div><div class="ex-name">Энергичное</div></div>
         </div>
-
         <div class="target-panel">
             <span>🎯 Цель на сегодня:</span>
             <div class="target-control">
@@ -444,20 +95,17 @@
                 <button class="target-btn" id="targetPlus">+</button>
             </div>
         </div>
-
         <div class="canvas-wrapper">
             <canvas id="breathCanvas" width="400" height="400"></canvas>
             <div class="phase-badge" id="phaseText">ВДОХ</div>
         </div>
         <div class="timer" id="timerDisplay">0.0</div>
         <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
-
         <div class="stats-row">
             <div class="stat-item"><div class="stat-number" id="cycleCount">0</div><div class="stat-label">🌀 Циклов сегодня</div></div>
             <div class="stat-item"><div class="stat-number" id="targetCount">2</div><div class="stat-label">🎯 Цель</div></div>
             <div class="stat-item"><div class="stat-number" id="totalCount">0</div><div class="stat-label">⭐ Всего</div></div>
         </div>
-
         <div class="btn-group">
             <button class="btn-start" id="startBtn">▶ СТАРТ</button>
             <button class="btn-pause" id="pauseBtn">⏸ ПАУЗА</button>
@@ -465,8 +113,6 @@
         </div>
         <button class="btn-pdf" id="pdfAllBtn">📄 СКАЧАТЬ ОТЧЁТ ЗА ВСЁ ВРЕМЯ</button>
     </div>
-
-    <!-- Вкладка Календарь -->
     <div id="tab-calendar" class="tab-content">
         <div class="calendar">
             <div class="calendar-header">
@@ -474,24 +120,18 @@
                 <span id="monthYear" style="font-weight: 600;"></span>
                 <button class="calendar-nav" id="nextMonth">▶</button>
             </div>
-            <div class="calendar-weekdays">
-                <span>Пн</span><span>Вт</span><span>Ср</span><span>Чт</span><span>Пт</span><span>Сб</span><span>Вс</span>
-            </div>
+            <div class="calendar-weekdays"><span>Пн</span><span>Вт</span><span>Ср</span><span>Чт</span><span>Пт</span><span>Сб</span><span>Вс</span></div>
             <div class="calendar-days" id="calendarDays"></div>
         </div>
-        <div class="stats-detail" id="dayStats">
-            <p style="text-align:center">📅 Выберите день</p>
-        </div>
+        <div class="stats-detail" id="dayStats"><p style="text-align:center">📅 Выберите день в календаре</p></div>
     </div>
-
-    <!-- Вкладка Статистика -->
     <div id="tab-stats" class="tab-content">
         <div class="period-buttons">
             <div class="period-btn" data-period="day">📅 День</div>
             <div class="period-btn" data-period="week">📆 Неделя</div>
             <div class="period-btn" data-period="month">📆 Месяц</div>
-            <div class="period-btn" data-period="3months">📆 3 мес</div>
-            <div class="period-btn" data-period="6months">📆 6 мес</div>
+            <div class="period-btn" data-period="3months">📆 3 месяца</div>
+            <div class="period-btn" data-period="6months">📆 6 месяцев</div>
             <div class="period-btn" data-period="year">📅 Год</div>
             <div class="period-btn active" data-period="all">🎯 Всё время</div>
         </div>
@@ -502,19 +142,17 @@
         <div class="stats-detail" id="periodStats">
             <div class="stat-line"><span>📊 Тренировок:</span><span id="statSessions">0</span></div>
             <div class="stat-line"><span>🌀 Всего циклов:</span><span id="statCycles">0</span></div>
-            <div class="stat-line"><span>⭐ В день (сред.):</span><span id="statAvg">0</span></div>
+            <div class="stat-line"><span>⭐ В день (среднее):</span><span id="statAvg">0</span></div>
             <div class="stat-line"><span>🔥 Лучший день:</span><span id="statBest">—</span></div>
         </div>
         <button class="btn-pdf" id="pdfPeriodBtn">📄 ЭКСПОРТ PDF ЗА ПЕРИОД</button>
     </div>
 </div>
-
-<!-- Модальное окно -->
 <div id="moodModal" class="modal">
     <div class="modal-content">
         <div id="modalEmoji" style="font-size: 2rem;">🎉</div>
         <h3 id="modalHeader">Упражнение завершено!</h3>
-        <p id="modalText">Как себя чувствуешь?</p>
+        <p id="modalText">Как вы себя чувствуете?</p>
         <div id="supportBlock" class="support-msg" style="display:none"></div>
         <div class="mood-grid">
             <div class="mood-option" data-mood="great"><div class="mood-emoji">😄</div><div class="mood-text">Отлично</div></div>
@@ -525,11 +163,9 @@
         <button class="modal-btn" id="closeModalBtn">✨ Продолжить ✨</button>
     </div>
 </div>
-
 <div id="toast" class="toast"></div>
 
 <script>
-    // УПРАЖНЕНИЯ
     const exercises = {
         box: { name: "Квадратное", phases: ["ВДОХ", "ЗАДЕРЖКА", "ВЫДОХ", "ЗАДЕРЖКА"], durations: [4, 4, 4, 4] },
         deep: { name: "Глубокое", phases: ["ВДОХ", "ПАУЗА", "ВЫДОХ", "ПАУЗА"], durations: [5, 1.5, 6, 1.5] },
@@ -537,7 +173,6 @@
         energize: { name: "Энергичное", phases: ["ВДОХ", "ЗАДЕРЖКА", "ВЫДОХ", "ПАУЗА"], durations: [2, 4, 2, 2] }
     };
 
-    // ДАННЫЕ
     let trainingHistory = [];
     let saved = localStorage.getItem("breathHistory");
     if (saved) trainingHistory = JSON.parse(saved);
@@ -552,7 +187,6 @@
     let cyclesDone = 0;
     let totalCyclesAll = trainingHistory.reduce((s, t) => s + t.cycles, 0);
     
-    // Ежедневный сброс
     let lastResetDate = localStorage.getItem("lastResetDate") || "";
     const today = new Date().toDateString();
     if (lastResetDate !== today) {
@@ -564,24 +198,11 @@
         if (savedCycles) cyclesDone = parseInt(savedCycles);
     }
     
-    let active = false;
-    let paused = false;
-    let animationId = null;
-    let lastTime = null;
-    let audioCtx = null;
-    
-    let sessionMood = null;
-    let sessionStartTime = null;
-    let sessionEndTime = null;
-    let stopReason = "completed";
-    
-    let currentCalendarDate = new Date();
-    let selectedDate = null;
-    let currentPeriod = "all";
-
+    let active = false, paused = false, animationId = null, lastTime = null, audioCtx = null;
+    let sessionMood = null, sessionStartTime = null, sessionEndTime = null, stopReason = "completed";
+    let currentCalendarDate = new Date(), selectedDate = null, currentPeriod = "all";
     const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
 
-    // ПУЗЫРЬКИ
     function createBubbles() {
         const container = document.getElementById("bubbles");
         for (let i = 0; i < 25; i++) {
@@ -602,7 +223,7 @@
         const toast = document.getElementById("toast");
         toast.textContent = msg;
         toast.style.display = "block";
-        setTimeout(() => { toast.style.display = "none"; }, 2500);
+        setTimeout(() => { toast.style.display = "none"; }, 2000);
     }
 
     function playBeep(freq, dur) {
@@ -622,7 +243,6 @@
         } catch(e) {}
     }
 
-    // РИСОВАНИЕ КРУГА
     function drawCanvas() {
         const canvas = document.getElementById("breathCanvas");
         const container = canvas.parentElement;
@@ -675,9 +295,7 @@
                 completeExercise();
                 return;
             }
-        } else {
-            playBeep(660, 0.08);
-        }
+        } else { playBeep(660, 0.08); }
         currentPhase = next;
         timeLeft = durations[currentPhase];
         updateUI();
@@ -694,22 +312,17 @@
 
     function showModal() {
         const modal = document.getElementById("moodModal");
-        const modalEmoji = document.getElementById("modalEmoji");
-        const modalHeader = document.getElementById("modalHeader");
-        const modalText = document.getElementById("modalText");
-        const supportBlock = document.getElementById("supportBlock");
-        
         if (stopReason === "completed") {
-            modalEmoji.innerHTML = "🎉🏆🎉";
-            modalHeader.innerHTML = "Поздравляем! Цель достигнута!";
-            modalText.innerHTML = "Как себя чувствуешь?";
-            supportBlock.style.display = "none";
+            document.getElementById("modalEmoji").innerHTML = "🎉🏆🎉";
+            document.getElementById("modalHeader").innerHTML = "Поздравляем! Цель достигнута!";
+            document.getElementById("modalText").innerHTML = "Как вы себя чувствуете?";
+            document.getElementById("supportBlock").style.display = "none";
         } else {
-            modalEmoji.innerHTML = "💪🌟💙";
-            modalHeader.innerHTML = "Ты сделал важный шаг!";
-            modalText.innerHTML = "Как себя чувствуешь?";
-            supportBlock.style.display = "block";
-            supportBlock.innerHTML = "🌸 Не расстраивайся! В следующий раз обязательно получится лучше. Главное — ты начал(а), и это уже победа! 🌸";
+            document.getElementById("modalEmoji").innerHTML = "💪🌟💙";
+            document.getElementById("modalHeader").innerHTML = "Вы сделали важный шаг!";
+            document.getElementById("modalText").innerHTML = "Как вы себя чувствуете?";
+            document.getElementById("supportBlock").style.display = "block";
+            document.getElementById("supportBlock").innerHTML = "🌸 Не расстраивайтесь! В следующий раз обязательно получится лучше. Главное — вы начали, и это уже победа! 🌸";
         }
         modal.style.display = "flex";
     }
@@ -736,7 +349,7 @@
         if (active && !paused) return;
         if (paused) { paused = false; active = true; playBeep(600, 0.1); return; }
         if (!active && !paused) {
-            cyclesDone = 0;
+            cyclesDone = parseInt(localStorage.getItem("cyclesDone") || "0");
             currentPhase = 0;
             timeLeft = durations[0];
             active = true;
@@ -753,25 +366,18 @@
         }
     }
 
-    function pauseExercise() {
-        if (active && !paused) { paused = true; playBeep(440, 0.1); showToast("⏸ Пауза"); }
-    }
-
+    function pauseExercise() { if (active && !paused) { paused = true; playBeep(440, 0.1); showToast("⏸ Пауза"); } }
     function stopExercise() {
         if (active) {
-            active = false;
-            paused = false;
+            active = false; paused = false;
             if (animationId) cancelAnimationFrame(animationId);
             animationId = null;
             sessionEndTime = new Date();
             stopReason = "stopped";
             showModal();
             playBeep(300, 0.15);
-        } else if (cyclesDone > 0 && !active) {
-            stopReason = "stopped";
-            sessionEndTime = new Date();
-            showModal();
-        } else { showToast("⏹ Нажмите СТАРТ"); }
+        } else if (cyclesDone > 0 && !active) { stopReason = "stopped"; sessionEndTime = new Date(); showModal(); }
+        else { showToast("⏹ Нажмите СТАРТ"); }
     }
 
     function switchExercise(exKey) {
@@ -789,12 +395,8 @@
         document.querySelector(`[data-ex="${exKey}"]`).classList.add("active");
     }
 
-    function increaseTarget() {
-        if (targetCycles < 20) { targetCycles++; updateTargetDisplay(); showToast("🎯 Цель: " + targetCycles + " цикла"); }
-    }
-    function decreaseTarget() {
-        if (targetCycles > 1) { targetCycles--; updateTargetDisplay(); showToast("🎯 Цель: " + targetCycles + " цикла"); }
-    }
+    function increaseTarget() { if (targetCycles < 20) { targetCycles++; updateTargetDisplay(); showToast("🎯 Цель: " + targetCycles + " циклов"); } }
+    function decreaseTarget() { if (targetCycles > 1) { targetCycles--; updateTargetDisplay(); showToast("🎯 Цель: " + targetCycles + " циклов"); } }
     function updateTargetDisplay() {
         document.getElementById("targetDisplay").innerHTML = targetCycles;
         document.getElementById("targetCount").innerHTML = targetCycles;
@@ -802,7 +404,6 @@
         if (!active) { updateUI(); }
     }
 
-    // СОХРАНЕНИЕ ТРЕНИРОВКИ
     function saveTraining(mood) {
         const newSession = {
             date: new Date().toISOString(),
@@ -819,7 +420,6 @@
         updatePeriodStats();
     }
 
-    // КАЛЕНДАРЬ
     function renderCalendar() {
         const year = currentCalendarDate.getFullYear();
         const month = currentCalendarDate.getMonth();
@@ -828,10 +428,8 @@
         startWeekday = startWeekday === 0 ? 7 : startWeekday;
         const daysInMonth = new Date(year, month + 1, 0).getDate();
         document.getElementById("monthYear").innerHTML = monthNames[month] + " " + year;
-        
         const sessionsByDate = {};
         trainingHistory.forEach(s => { sessionsByDate[s.dateStr] = (sessionsByDate[s.dateStr] || 0) + s.cycles; });
-        
         let html = "";
         for (let i = 1; i < startWeekday; i++) html += `<div class="calendar-day empty"></div>`;
         for (let d = 1; d <= daysInMonth; d++) {
@@ -855,7 +453,7 @@
         if (moodAvg >= 3.5) moodText = "😄 Отлично";
         else if (moodAvg >= 2.5) moodText = "🙂 Хорошо";
         else if (moodAvg >= 1.5) moodText = "😐 Нормально";
-        else if (moodAvg > 0) moodText = "😌 Устал";
+        else if (moodAvg > 0) moodText = "😌 Устал(а)";
         document.getElementById("dayStats").innerHTML = `
             <div class="stat-line"><span>📅 ${dateStr}</span><span></span></div>
             <div class="stat-line"><span>🌀 Тренировок:</span><span>${daySessions.length}</span></div>
@@ -865,7 +463,6 @@
         renderCalendar();
     }
 
-    // СТАТИСТИКА ЗА ПЕРИОД
     function getDateRange(period, startInput, endInput) {
         const now = new Date();
         let start = new Date(), end = new Date();
@@ -875,7 +472,18 @@
         else if (period === "3months") { start = new Date(now); start.setMonth(now.getMonth() - 2); start.setDate(1); start.setHours(0,0,0,0); end = new Date(); }
         else if (period === "6months") { start = new Date(now); start.setMonth(now.getMonth() - 5); start.setDate(1); start.setHours(0,0,0,0); end = new Date(); }
         else if (period === "year") { start = new Date(now.getFullYear(), 0, 1); end = new Date(now.getFullYear(), 11, 31); end.setHours(23,59,59,999); }
-        else if (period === "all") { start = new Date(2000, 0, 1); end = new Date(); }
+        else if (period === "all") {
+            if (trainingHistory.length > 0) {
+                const dates = trainingHistory.map(s => new Date(s.date));
+                start = new Date(Math.min(...dates));
+                end = new Date(Math.max(...dates));
+                start.setHours(0,0,0,0);
+                end.setHours(23,59,59,999);
+            } else {
+                start = new Date();
+                end = new Date();
+            }
+        }
         if (startInput && endInput && startInput !== "" && endInput !== "") {
             start = new Date(startInput); end = new Date(endInput); end.setHours(23,59,59,999);
         }
@@ -898,10 +506,9 @@
         document.getElementById("statSessions").innerHTML = sessions;
         document.getElementById("statCycles").innerHTML = cycles;
         document.getElementById("statAvg").innerHTML = avg;
-        document.getElementById("statBest").innerHTML = best.cycles > 0 ? `${best.date} (${best.cycles})` : "—";
+        document.getElementById("statBest").innerHTML = best.cycles > 0 ? `${best.date} (${best.cycles} циклов)` : "—";
     }
 
-    // PDF ЭКСПОРТ
     async function exportPDF(period) {
         const startInput = document.getElementById("startDate").value;
         const endInput = document.getElementById("endDate").value;
@@ -914,50 +521,77 @@
         const cycles = filtered.reduce((s, t) => s + t.cycles, 0);
         
         let rows = "";
-        for (let s of filtered) {
-            rows += `
-                <tr style="border-bottom:1px solid #ddd;">
-                    <td style="padding:8px">${new Date(s.date).toLocaleDateString('ru-RU')}</td>
-                    <td style="padding:8px">${s.exercise}</td>
-                    <td style="padding:8px">${s.cycles} циклов</td>
-                    <td style="padding:8px">${{great:"😄",good:"🙂",okay:"😐",tired:"😌"}[s.mood] || "⭐"}</td>
-                </tr>
-            `;
+        if (filtered.length === 0) {
+            rows = `<tr><td colspan="4" style="text-align:center; padding:30px;">📭 Нет тренировок за выбранный период</td></tr>`;
+        } else {
+            for (let s of filtered) {
+                let moodEmoji = "⭐";
+                if (s.mood === "great") moodEmoji = "😄";
+                else if (s.mood === "good") moodEmoji = "🙂";
+                else if (s.mood === "okay") moodEmoji = "😐";
+                else if (s.mood === "tired") moodEmoji = "😌";
+                rows += `<tr style="border-bottom:1px solid #ddd;">
+                    <td style="padding:10px;">${new Date(s.date).toLocaleDateString('ru-RU')}</td>
+                    <td style="padding:10px;">${s.exercise}</td>
+                    <td style="padding:10px;">${s.cycles} циклов</td>
+                    <td style="padding:10px;">${moodEmoji}</td>
+                </tr>`;
+            }
         }
+        
+        const startStr = start.toLocaleDateString('ru-RU');
+        const endStr = end.toLocaleDateString('ru-RU');
+        const currentDate = new Date().toLocaleString('ru-RU');
         
         const reportHtml = `
             <div style="font-family: -apple-system, 'Segoe UI', sans-serif; padding: 30px; max-width: 800px; margin: 0 auto;">
                 <div style="text-align: center; margin-bottom: 30px;">
                     <h1 style="color: #2c5a7a;">🌊 BreathFlow</h1>
-                    <p style="color: #666;">Отчёт за период: ${start.toLocaleDateString('ru-RU')} — ${end.toLocaleDateString('ru-RU')}</p>
+                    <p style="color: #666; margin-top: 10px;">Реабилитационный отчёт о дыхательных тренировках</p>
+                    <hr style="margin: 20px 0; border: none; border-top: 2px solid #b6d5e8;">
                 </div>
+                
+                <div style="background: #f0f4f8; border-radius: 20px; padding: 20px; margin-bottom: 25px;">
+                    <h3 style="color: #2c5a7a; margin-bottom: 15px;">📊 Период отчёта</h3>
+                    <div style="display:flex; justify-content:space-between; padding:8px 0;">
+                        <span>📅 Начало периода:</span>
+                        <span style="font-weight:bold;">${startStr}</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; padding:8px 0;">
+                        <span>📅 Конец периода:</span>
+                        <span style="font-weight:bold;">${endStr}</span>
+                    </div>
+                </div>
+                
                 <div style="display: flex; gap: 20px; justify-content: center; margin-bottom: 30px;">
-                    <div style="background: linear-gradient(135deg, #b6d5e8, #8fc5e8); padding: 15px 30px; border-radius: 20px; text-align: center;">
-                        <div style="font-size: 32px; font-weight: bold;">${sessions}</div>
-                        <div>тренировок</div>
+                    <div style="background: linear-gradient(135deg, #b6d5e8, #8fc5e8); padding: 20px 35px; border-radius: 25px; text-align: center;">
+                        <div style="font-size: 42px; font-weight: bold; color: #2c5a7a;">${sessions}</div>
+                        <div style="color: #2c5a7a; font-weight: 500;">тренировок</div>
                     </div>
-                    <div style="background: linear-gradient(135deg, #b6d5e8, #8fc5e8); padding: 15px 30px; border-radius: 20px; text-align: center;">
-                        <div style="font-size: 32px; font-weight: bold;">${cycles}</div>
-                        <div>циклов</div>
+                    <div style="background: linear-gradient(135deg, #b6d5e8, #8fc5e8); padding: 20px 35px; border-radius: 25px; text-align: center;">
+                        <div style="font-size: 42px; font-weight: bold; color: #2c5a7a;">${cycles}</div>
+                        <div style="color: #2c5a7a; font-weight: 500;">циклов</div>
                     </div>
                 </div>
-                <h3 style="color: #2c5a7a; margin-bottom: 15px;">📋 Список тренировок</h3>
-                <table style="width: 100%; border-collapse: collapse;">
+                
+                <h3 style="color: #2c5a7a; margin: 25px 0 15px;">📋 Список тренировок</h3>
+                <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 20px; overflow: hidden;">
                     <thead>
                         <tr style="background: #b6d5e8;">
-                            <th style="padding: 10px; text-align: left;">Дата</th>
-                            <th style="padding: 10px; text-align: left;">Упражнение</th>
-                            <th style="padding: 10px; text-align: left;">Циклы</th>
-                            <th style="padding: 10px; text-align: left;">Настроение</th>
+                            <th style="padding: 12px; text-align: left;">Дата</th>
+                            <th style="padding: 12px; text-align: left;">Упражнение</th>
+                            <th style="padding: 12px; text-align: left;">Циклы</th>
+                            <th style="padding: 12px; text-align: left;">Настроение</th>
                         </tr>
                     </thead>
                     <tbody>
-                        ${rows || '<tr><td colspan="4" style="text-align:center; padding:20px;">Нет тренировок за выбранный период</td></tr>'}
+                        ${rows}
                     </tbody>
                 </table>
-                <div style="text-align: center; margin-top: 30px; color: #999; font-size: 12px;">
-                    <p>Отчёт сгенерирован автоматически • BreathFlow • Дышите осознанно 💙</p>
-                    <p>${new Date().toLocaleString('ru-RU')}</p>
+                
+                <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; color: #999; font-size: 12px;">
+                    <p>📄 Отчёт сгенерирован автоматически • BreathFlow • Дышите осознанно 💙</p>
+                    <p>🗓️ ${currentDate}</p>
                 </div>
             </div>
         `;
@@ -969,37 +603,30 @@
         try {
             await html2pdf().set({
                 margin: 0.3,
-                filename: `BreathFlow_${start.toISOString().slice(0,10)}_to_${end.toISOString().slice(0,10)}.pdf`,
+                filename: `BreathFlow_отчёт_${startStr.replace(/\./g, '-')}_по_${endStr.replace(/\./g, '-')}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, letterRendering: true },
+                html2canvas: { scale: 2 },
                 jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
             }).from(element).save();
-            showToast("📄 PDF отчёт сохранён!");
+            showToast("📄 PDF отчёт успешно сохранён!");
         } catch(err) {
             console.error(err);
             showToast("❌ Ошибка при создании PDF");
         }
-        
         document.body.removeChild(element);
     }
 
-    // СОХРАНЕНИЕ НАСТРОЕНИЯ
     function saveMood(mood) {
         sessionMood = mood;
         document.getElementById("moodModal").style.display = "none";
         saveTraining(mood);
-        // Сбрасываем счётчик циклов на сегодня
         cyclesDone = 0;
         localStorage.setItem("cyclesDone", cyclesDone);
         updateUI();
-        const messages = { great: "😄 Отлично!", good: "🙂 Хорошо!", okay: "😐 Нормально!", tired: "😌 Ты молодец!" };
+        const messages = { great: "😄 Отлично! Вы молодец!", good: "🙂 Хорошая работа! Так держать!", okay: "😐 Хорошо, в следующий раз будет лучше!", tired: "😌 Вы справились! Отдохните" };
         showToast(messages[mood]);
-        setTimeout(() => {
-            if (confirm("📄 Сохранить отчёт за сегодня?")) exportPDF("day");
-        }, 500);
     }
 
-    // ИНИЦИАЛИЗАЦИЯ
     function init() {
         document.getElementById("totalCount").innerHTML = totalCyclesAll;
         document.getElementById("cycleCount").innerHTML = cyclesDone;
